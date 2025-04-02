@@ -8,4 +8,4 @@ def django_greetings(request) -> HttpResponse:
 
 
 def guten_tag(request):
-    return HttpResponse("Guten Tag !, Herr Dmytr0 !")
+    return HttpResponse("<h1>Guten Tag !, Herr Dmytr0 !<h1>")
