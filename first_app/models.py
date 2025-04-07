@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -10,10 +9,6 @@ class Category(models.Model):
     class Meta:
         db_table = 'task_manager_category'
         verbose_name = 'Category'
-
-
-
-
 
 
 class Task(models.Model):
@@ -39,8 +34,6 @@ class Task(models.Model):
         db_table = 'task_manager_task'
         ordering = ['-created_at']
         verbose_name = 'Task'
-
-
 
 
 class SubTask(models.Model):
