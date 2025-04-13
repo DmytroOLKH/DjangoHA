@@ -36,6 +36,7 @@ class Task(models.Model):
         verbose_name = 'Task'
 
 
+
 class SubTask(models.Model):
     STATUS_CHOICES = [
         ('New', 'New'),
