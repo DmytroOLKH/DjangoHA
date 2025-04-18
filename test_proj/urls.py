@@ -17,9 +17,31 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from first_app.views import django_greetings, guten_tag
+from first_app.views import (
+    TaskCreateView,
+    TaskStatsView,
+    TaskDetailView,
+    CategoryCreateView,
+    SubTaskCreateView,
+    TaskListView,
+    SubTaskListCreateView,
+    SubTaskDetailUpdateDeleteView)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('greetings/', django_greetings),
-    path('hello/', guten_tag)
-]
+    # path('greetings/', django_greetings),
+    # path('hello/', guten_tag),
+    path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
+    path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('tasks_details/<int:task_id>/', TaskDetailView.as_view(), name='task-detail'),
+    path('tasks/stats/', TaskStatsView.as_view(), name='task-stats'),
+    path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
+    path('subtasks/create/', SubTaskCreateView.as_view(), name='subtask-create'),
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    path('subtasks/<int:id>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
+
+             ]
+
+
