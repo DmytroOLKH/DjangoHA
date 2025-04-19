@@ -1,9 +1,13 @@
 from django.http import HttpRequest, HttpResponse
 from django.db.models import Count
 from django.utils.timezone import now
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 from first_app.models import Task, Category, SubTask
 from first_app.serializers import (
     TaskSerializer,
@@ -29,13 +33,6 @@ class TaskCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class TaskListView(APIView):
-    def get(self, request):
-        tasks = Task.objects.all()
-        serializer = TaskSerializer(tasks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TaskDetailView(APIView):
@@ -136,3 +133,31 @@ class SubTaskDetailUpdateDeleteView(APIView):
 
         subtask.delete()
         return Response({"message": "Подзадача успешно удалена"}, status=status.HTTP_204_NO_CONTENT)
+
+class SubTaskPagination(PageNumberPagination):
+    page_size = 5
+
+class SubTaskListView(ListAPIView):
+    queryset = SubTask.objects.all().order_by('-created_at')
+    serializer_class = SubTaskSerializer
+    pagination_class = SubTaskPagination
+
+
+class TaskListView(APIView):
+    def get(self, request):
+        day_of_week = request.query_params.get('day', None)
+        if day_of_week:
+            tasks = Task.objects.filter(day_of_week__iexact=day_of_week)
+        else:
+            tasks = Task.objects.all()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class FilteredSubtaskListView(ListAPIView):
+    queryset = SubTask.objects.all().order_by('-created_at')
+    serializer_class = SubTaskSerializer
+    pagination_class = SubTaskPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['task', 'status']
+
