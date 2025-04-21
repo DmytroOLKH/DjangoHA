@@ -1,13 +1,10 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.db.models import Count
 from django.utils.timezone import now
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
-from rest_framework.generics import ListAPIView
 from first_app.models import Task, Category, SubTask
 from first_app.serializers import (
     TaskSerializer,
@@ -15,16 +12,14 @@ from first_app.serializers import (
     SubTaskCreateSerializer,
     CategoryCreateSerializer,
     TaskDetailSerializer,
-    TaskCreateSerializer          )
-
+    TaskCreateSerializer
+)
 
 def django_greetings(request) -> HttpResponse:
-    return HttpResponse(
-        "<h1>Greetings from the Django APP!!! :)</h1>" )
+    return HttpResponse("<h1>Greetings from the Django APP!!! :)</h1>")
 
 def guten_tag(request):
     return HttpResponse("<h1>Guten Tag !, Herr Dmytr0 !<h1>")
-
 
 class TaskCreateView(APIView):
     def post(self, request):
@@ -33,7 +28,6 @@ class TaskCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TaskDetailView(APIView):
     def get(self, request, task_id, *args, **kwargs):
@@ -55,11 +49,9 @@ class TaskStatsView(APIView):
             "tasks_by_status": {status['status']: status['count'] for status in statuses},
             "overdue_tasks": overdue_tasks,
         }
-
-        return Response(stats, status=200)
+        return Response(stats, status=status.HTTP_200_OK)
 
 class CategoryCreateView(APIView):
-
     def post(self, request, *args, **kwargs):
         serializer = CategoryCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -80,13 +72,12 @@ class CategoryCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SubTaskCreateView(APIView):
-    def post(self, request,  *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = SubTaskCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class SubTaskListCreateView(APIView):
     def get(self, request, *args, **kwargs):
@@ -101,9 +92,7 @@ class SubTaskListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class SubTaskDetailUpdateDeleteView(APIView):
-
     def get(self, request, id, *args, **kwargs):
         try:
             subtask = SubTask.objects.get(id=id)
@@ -137,11 +126,13 @@ class SubTaskDetailUpdateDeleteView(APIView):
 class SubTaskPagination(PageNumberPagination):
     page_size = 5
 
-class SubTaskListView(ListAPIView):
-    queryset = SubTask.objects.all().order_by('-created_at')
-    serializer_class = SubTaskSerializer
-    pagination_class = SubTaskPagination
-
+class SubTaskListView(APIView):
+    def get(self, request):
+        queryset = SubTask.objects.all().order_by('-created_at')
+        paginator = SubTaskPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = SubTaskSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 class TaskListView(APIView):
     def get(self, request):
@@ -153,11 +144,19 @@ class TaskListView(APIView):
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class FilteredSubtaskListView(APIView):
+    def get(self, request):
+        queryset = SubTask.objects.all().order_by('-created_at')
 
-class FilteredSubtaskListView(ListAPIView):
-    queryset = SubTask.objects.all().order_by('-created_at')
-    serializer_class = SubTaskSerializer
-    pagination_class = SubTaskPagination
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['task', 'status']
+        task_id = request.query_params.get('task')
+        if task_id:
+            queryset = queryset.filter(task_id=task_id)
 
+        status_param = request.query_params.get('status')
+        if status_param:
+            queryset = queryset.filter(status=status_param)
+
+        paginator = SubTaskPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = SubTaskSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
