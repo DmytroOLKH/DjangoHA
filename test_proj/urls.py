@@ -14,39 +14,54 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# from django.contrib import admin
+# from django.urls import path
+# from first_app.views import django_greetings, guten_tag
+# from first_app.views import        (
+#     CategoryCreateView,
+#     TaskCreateView,
+#     TaskStatsView,
+#     TaskDetailView,
+#     TaskListView,
+#     FilteredSubtaskListView,
+#     SubTaskCreateView,
+#     SubTaskListView,
+#     SubTaskListCreateView,
+#     SubTaskDetailUpdateDeleteView   )
+#
+#
+#
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     # path('greetings/', django_greetings),
+#     # path('hello/', guten_tag),
+#     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
+#     path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
+#     path('tasks/', TaskListView.as_view(), name='task-list'),
+#     path('tasks_details/<int:task_id>/', TaskDetailView.as_view(), name='task-detail'),
+#     path('tasks/stats/', TaskStatsView.as_view(), name='task-stats'),
+#     path('subtasks/create/', SubTaskCreateView.as_view(), name='subtask-create'),
+#     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+#     path('subtasks/list_view', SubTaskListView.as_view(), name='subtask-list'),
+#     path('subtasks/<int:id>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
+#     path('filtered_subtasks/', FilteredSubtaskListView.as_view(), name='filtered-subtask-list'),
+#              ]
+
+
+
 from django.contrib import admin
 from django.urls import path
-from first_app.views import django_greetings, guten_tag
-from first_app.views import        (
-    CategoryCreateView,
-    TaskCreateView,
-    TaskStatsView,
-    TaskDetailView,
-    TaskListView,
-    FilteredSubtaskListView,
-    SubTaskCreateView,
-    SubTaskListView,
-    SubTaskListCreateView,
-    SubTaskDetailUpdateDeleteView   )
-
-
+from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView
+from first_app.views import SubTaskListCreateView, SubTaskRetrieveUpdateDestroyView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('greetings/', django_greetings),
-    # path('hello/', guten_tag),
-    path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
-    path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
-    path('tasks/', TaskListView.as_view(), name='task-list'),
-    path('tasks_details/<int:task_id>/', TaskDetailView.as_view(), name='task-detail'),
-    path('tasks/stats/', TaskStatsView.as_view(), name='task-stats'),
-    path('subtasks/create/', SubTaskCreateView.as_view(), name='subtask-create'),
+
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+
+    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
+
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
-    path('subtasks/list_view', SubTaskListView.as_view(), name='subtask-list'),
-    path('subtasks/<int:id>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
-    path('filtered_subtasks/', FilteredSubtaskListView.as_view(), name='filtered-subtask-list'),
-             ]
 
-
-
-
+    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
+              ]

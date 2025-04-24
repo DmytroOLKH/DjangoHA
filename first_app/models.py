@@ -26,7 +26,7 @@ class Task(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-    day_of_week = models.CharField(max_length=20)  # "Monday", "Tuesday" ...
+    #  day_of_week = models.CharField(max_length=20)  # "Monday", "Tuesday" ...
 
     def __str__(self):
         return self.title
