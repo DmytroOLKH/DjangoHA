@@ -20,6 +20,11 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
                 raise ValidationError("Категория с таким названием уже существует.")
         return value
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
 
 class SubTaskCreateSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
@@ -77,6 +82,8 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+
+
 
 
 

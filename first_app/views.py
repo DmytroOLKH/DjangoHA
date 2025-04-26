@@ -1,9 +1,26 @@
 
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from first_app.models import Task, SubTask
-from first_app.serializers import TaskSerializer, SubTaskSerializer
+from first_app.models import Task, SubTask, Category
+from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    @action(detail=False, methods=['get'])
+    def count_tasks(self, request, format=None):
+        data = {
+            category.name: category.tasks.count()
+            for category in Category.objects.all()
+        }
+        return Response(data)
+
 
 class TaskListCreateView(ListCreateAPIView):
     queryset = Task.objects.all()

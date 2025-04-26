@@ -47,21 +47,20 @@ Including another URLconf
 #     path('filtered_subtasks/', FilteredSubtaskListView.as_view(), name='filtered-subtask-list'),
 #              ]
 
-
-
+from rest_framework.routers import DefaultRouter
 from django.contrib import admin
-from django.urls import path
-from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView
-from first_app.views import SubTaskListCreateView, SubTaskRetrieveUpdateDestroyView
+from django.urls import path, include
+from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView, SubTaskListCreateView, SubTaskRetrieveUpdateDestroyView
+from first_app.views import  CategoryViewSet
+
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
-
-    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
-
-    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
-
-    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
-              ]
+    # path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    # path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
+    # path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    # path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
+    path('', include(router.urls)),
+    ]

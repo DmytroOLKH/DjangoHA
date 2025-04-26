@@ -1,7 +1,23 @@
+from django.utils.timezone import now
 from django.db import models
+
+
+class CategoryManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    objects = CategoryManager()
+
+    def delete(self, *args, **kwargs):
+        self.is_deleted = True
+        self.deleted_at = now()
+        self.save()
 
     def __str__(self):
         return self.name
@@ -21,8 +37,7 @@ class Task(models.Model):
     ]
 
     title = models.CharField(max_length=100, unique=True)
-    description = models.TextField()
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category, related_name='tasks')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
