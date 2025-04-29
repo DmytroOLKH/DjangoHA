@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from environ import Env
+import os
 
 env = Env()
 
@@ -133,5 +134,52 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'first_app.pagination.CreatedAtCursorPagination',
+    'PAGE_SIZE': 6,
 }
 
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'http_logs': {
+            'level': 'INFO',  # Убедитесь, что уровень не выше, чем у логгера
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR, 'logs/http_logs.log'),
+        },
+        'db_logs': {
+            'level': 'DEBUG',  # Ловим даже DEBUG-логи (SQL-запросы)
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR, 'logs/db_logs.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'http_logs'],  # Оба handlers для Django
+            'level': 'INFO',  # Логи уровня INFO и выше
+            'propagate': True,  # Разрешаем передачу родительским логгерам
+        },
+        'django.db.backends': {
+            'handlers': ['db_logs'],
+            'level': 'DEBUG',  # Логируем SQL-запросы (DEBUG)
+            'propagate': False,  # Не дублируем в родительские логгеры
+        },
+    },
+}
