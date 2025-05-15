@@ -1,3 +1,22 @@
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.routers import DefaultRouter
+from django.contrib import admin
+from django.urls import path, include
+from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView, SubTaskListCreateView, \
+    SubTaskRetrieveUpdateDestroyView, TaskListView
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('tasks/list_create/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
+]
+
 """
 URL configuration for test_proj project.
 
@@ -45,22 +64,16 @@ Including another URLconf
 #     path('subtasks/list_view', SubTaskListView.as_view(), name='subtask-list'),
 #     path('subtasks/<int:id>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
 #     path('filtered_subtasks/', FilteredSubtaskListView.as_view(), name='filtered-subtask-list'),
+#     path('api/', include(router.urls)),
+#     path('api-auth/', include('rest_framework.urls')),
 #              ]
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+#     path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
+#     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+#     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
+#     #path('', include(router.urls)),
+#     ]
 
-from rest_framework.routers import DefaultRouter
-from django.contrib import admin
-from django.urls import path, include
-from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView, SubTaskListCreateView, SubTaskRetrieveUpdateDestroyView
-from first_app.views import  CategoryViewSet
 
-router = DefaultRouter()
-router.register(r'categories', CategoryViewSet, basename='category')
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
-    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
-    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
-    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
-    #path('', include(router.urls)),
-    ]

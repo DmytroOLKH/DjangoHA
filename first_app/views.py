@@ -1,28 +1,28 @@
 
-from first_app.models import Task, SubTask, Category
-from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.views import APIView
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from first_app.models import Task, SubTask, Category
+from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer
 
 
-class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
-    @action(detail=False, methods=['get'])
-    def count_tasks(self, request, format=None):
-        data = {
-            category.name: category.tasks.count()
-            for category in Category.objects.all()
-        }
-        return Response(data)
-
+class TaskListView(ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['status', 'deadline']
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at']
 
 class TaskListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -31,10 +31,12 @@ class TaskListCreateView(ListCreateAPIView):
     ordering_fields = ['created_at']
 
 class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
 class SubTaskListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -43,6 +45,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     ordering_fields = ['created_at']
 
 class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
 

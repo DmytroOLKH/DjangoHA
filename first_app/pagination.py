@@ -1,5 +1,5 @@
-from rest_framework.pagination import CursorPagination
-
-class CreatedAtCursorPagination(CursorPagination):
-    page_size = 6
-    ordering = 'created_at'
+# from rest_framework.pagination import CursorPagination
+#
+# class CreatedAtCursorPagination(CursorPagination):
+#     page_size = 6
+#     ordering = 'created_at'
