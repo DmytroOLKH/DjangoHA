@@ -1,10 +1,22 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import DefaultRouter
+from rest_framework import permissions
 from django.contrib import admin
 from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView, SubTaskListCreateView, \
     SubTaskRetrieveUpdateDestroyView, TaskListView
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Task API",
+        default_version="v1",
+        description="Документация API",
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,7 +27,12 @@ urlpatterns = [
     path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-docs'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-docs'),
+
 ]
+
+
 
 """
 URL configuration for test_proj project.

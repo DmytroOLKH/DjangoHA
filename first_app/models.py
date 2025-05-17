@@ -1,5 +1,6 @@
 from django.utils.timezone import now
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class CategoryManager(models.Manager):
@@ -40,6 +41,7 @@ class Task(models.Model):
     categories = models.ManyToManyField(Category, related_name='tasks')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=3 )
     created_at = models.DateTimeField(auto_now_add=True)
     #  day_of_week = models.CharField(max_length=20)  # "Monday", "Tuesday" ...
 
@@ -50,8 +52,6 @@ class Task(models.Model):
         db_table = 'task_manager_task'
         ordering = ['-created_at']
         verbose_name = 'Task'
-
-
 
 class SubTask(models.Model):
     STATUS_CHOICES = [
@@ -67,6 +67,7 @@ class SubTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=3 )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

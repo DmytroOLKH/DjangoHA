@@ -1,4 +1,3 @@
-
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -8,8 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from first_app.models import Task, SubTask, Category
+from first_app.permissions import IsOwner
 from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer
-
 
 
 class TaskListView(ListAPIView):
@@ -22,13 +21,18 @@ class TaskListView(ListAPIView):
     ordering_fields = ['created_at']
 
 class TaskListCreateView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsOwner]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status', 'deadline']
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
 
 class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
@@ -44,10 +48,26 @@ class SubTaskListCreateView(ListCreateAPIView):
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
+
+
+
+class UserTasksView(ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+
+
+
+
 
 # from django.http import HttpResponse
 # from django.db.models import Count

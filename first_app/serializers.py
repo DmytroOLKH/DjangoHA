@@ -3,6 +3,7 @@ from rest_framework.exceptions import ValidationError
 from first_app.models import Task, Category, SubTask
 from datetime import datetime
 
+
 class CategoryCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -53,6 +54,7 @@ class SubTaskCreateSerializer(serializers.Serializer):
         }
 
 class SubTaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = SubTask
         fields = '__all__'
@@ -79,10 +81,8 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = Task
         fields = '__all__'
 
-
-class MyModelSerializer:
-    pass
