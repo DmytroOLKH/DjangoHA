@@ -1,14 +1,55 @@
+from django.contrib.auth import authenticate
 from django_filters.rest_framework import DjangoFilterBackend
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework import views, generics, status
 from rest_framework.views import APIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from first_app.models import Task, SubTask, Category
 from first_app.permissions import IsOwner
-from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer
+from first_app.serializers import TaskSerializer, SubTaskSerializer, CategorySerializer, RegisterSerializer
+
+
+User = get_user_model()
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "username": user.username,
+            "email": user.email
+        })
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh_token")
+
+        if not refresh_token:
+            return Response({"error": "Refresh token обязателен"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Выход выполнен, токен аннулирован"}, status=status.HTTP_205_RESET_CONTENT)
+        except TokenError:
+            return Response({"error": "Невалидный или уже аннулированный токен"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TaskListView(ListAPIView):
@@ -32,8 +73,6 @@ class TaskListCreateView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-
-
 class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     queryset = Task.objects.all()
@@ -56,8 +95,6 @@ class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
 
-
-
 class UserTasksView(ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
@@ -65,6 +102,24 @@ class UserTasksView(ListAPIView):
     def get_queryset(self):
         return Task.objects.filter(owner=self.request.user)
 
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        return Response({'error': 'Неверные данные'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 

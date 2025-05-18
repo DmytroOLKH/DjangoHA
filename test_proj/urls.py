@@ -6,7 +6,8 @@ from django.urls import path, include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from first_app.views import TaskListCreateView, TaskRetrieveUpdateDestroyView, SubTaskListCreateView, \
-    SubTaskRetrieveUpdateDestroyView, TaskListView
+    SubTaskRetrieveUpdateDestroyView, TaskListView, RegisterView, LogoutView, ProfileView
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -18,10 +19,14 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('profile/', ProfileView.as_view(), name='profile'),
     path('tasks/', TaskListView.as_view(), name='task-list'),
     path('tasks/list_create/', TaskListCreateView.as_view(), name='task-list-create'),
     path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
@@ -29,8 +34,10 @@ urlpatterns = [
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-docs'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-docs'),
+           ]
 
-]
+
+
 
 
 

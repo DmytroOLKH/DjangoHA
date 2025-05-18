@@ -41,7 +41,7 @@ class Task(models.Model):
     categories = models.ManyToManyField(Category, related_name='tasks')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=3 )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     #  day_of_week = models.CharField(max_length=20)  # "Monday", "Tuesday" ...
 
@@ -67,7 +67,7 @@ class SubTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
     deadline = models.DateTimeField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=3 )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -77,5 +77,6 @@ class SubTask(models.Model):
         db_table = 'task_manager_subtask'
         ordering = ['-created_at']
         verbose_name = 'SubTask'
+
 
 
