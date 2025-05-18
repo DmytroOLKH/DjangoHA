@@ -28,6 +28,7 @@ class Category(models.Model):
         verbose_name = 'Category'
 
 
+
 class Task(models.Model):
     STATUS_CHOICES = [
         ('New', 'New'),
@@ -46,7 +47,7 @@ class Task(models.Model):
     #  day_of_week = models.CharField(max_length=20)  # "Monday", "Tuesday" ...
 
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.status}"
 
     class Meta:
         db_table = 'task_manager_task'
